@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history — force pushing, or rebasing/amending/squashing commits
@@ -27,4 +28,13 @@ use the editor.
   `LOVABLE_API_KEY`. When Lovable does not provide one, users can bring their
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
+
 <!-- LOVABLE:END -->
+
+## Application architecture
+
+- Use TanStack file routes for catalog, product detail and standalone admin pages; unnested admin filenames keep forms from rendering inside the product list.
+- Keep product validation and filtering in `src/features/catalog/model.ts`, example rows in `seed.ts`, and browser-only persistence in a shared React provider; this keeps business rules testable and never implies server persistence.
+- Load browser storage after hydration and validate stored records before accepting them; SSR and initial client rendering must remain consistent.
+- Use semantic global design tokens and shared UI controls for all presentation; reference-specific styling stays in the central stylesheet.
+- Validate and resize image uploads in the browser and accept only local image data or managed asset references; no remote fetch or server is required in this iteration.
