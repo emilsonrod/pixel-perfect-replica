@@ -24,6 +24,7 @@ import { IconButton } from "@/components/catalog/icon-button";
 import { SearchField } from "@/components/catalog/search-field";
 import { EmptyState } from "@/components/catalog/empty-state";
 import { SiteFooter } from "@/components/catalog/site-shell";
+import { AdminTabs } from "@/components/catalog/admin-tabs";
 import { filterProducts, formatPrice, type Product } from "./model";
 import { useProducts } from "./product-context";
 import { shareProduct } from "./share";
@@ -40,6 +41,7 @@ export function AdminPage() {
   const published = products.filter((product) => product.published).length;
   return (
     <main className="admin-container fade-up">
+      <AdminTabs active="products" />
       <div className="admin-heading">
         <div className="min-w-0">
           <p className="eyebrow mb-2">Casa Luma</p>

@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ProductProvider } from "@/features/catalog/product-provider";
+import { PaymentProvider } from "@/features/payments/payment-provider";
 import { SiteHeader } from "@/components/catalog/site-shell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
@@ -127,9 +128,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delayDuration={300}>
         <ProductProvider>
-          <SiteHeader />
-          <Outlet />
-          <Toaster position="bottom-right" />
+          <PaymentProvider>
+            <SiteHeader />
+            <Outlet />
+            <Toaster position="bottom-right" />
+          </PaymentProvider>
         </ProductProvider>
       </TooltipProvider>
     </QueryClientProvider>

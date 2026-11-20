@@ -12,8 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdminNuevoRouteImport } from './routes/admin_.nuevo'
+import { Route as AdminPagosRouteImport } from './routes/admin_.pagos'
+import { Route as PagoRequestIdRouteImport } from './routes/pago.$requestId'
 import { Route as ProductoProductIdRouteImport } from './routes/producto.$productId'
 import { Route as AdminEditarProductIdRouteImport } from './routes/admin_.editar.$productId'
+import { Route as AdminPagosNuevoRouteImport } from './routes/admin_.pagos_.nuevo'
+import { Route as AdminPagosQrRouteImport } from './routes/admin_.pagos_.qr'
+import { Route as ProductoProductIdPagarRouteImport } from './routes/producto.$productId_.pagar'
+import { Route as AdminPagosRevisarRequestIdRouteImport } from './routes/admin_.pagos_.revisar.$requestId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,6 +36,16 @@ const AdminNuevoRoute = AdminNuevoRouteImport.update({
   path: '/admin/nuevo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPagosRoute = AdminPagosRouteImport.update({
+  id: '/admin_/pagos',
+  path: '/admin/pagos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagoRequestIdRoute = PagoRequestIdRouteImport.update({
+  id: '/pago/$requestId',
+  path: '/pago/$requestId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductoProductIdRoute = ProductoProductIdRouteImport.update({
   id: '/producto/$productId',
   path: '/producto/$productId',
@@ -40,28 +56,67 @@ const AdminEditarProductIdRoute = AdminEditarProductIdRouteImport.update({
   path: '/admin/editar/$productId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPagosNuevoRoute = AdminPagosNuevoRouteImport.update({
+  id: '/admin_/pagos_/nuevo',
+  path: '/admin/pagos/nuevo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPagosQrRoute = AdminPagosQrRouteImport.update({
+  id: '/admin_/pagos_/qr',
+  path: '/admin/pagos/qr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductoProductIdPagarRoute = ProductoProductIdPagarRouteImport.update({
+  id: '/producto/$productId_/pagar',
+  path: '/producto/$productId/pagar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPagosRevisarRequestIdRoute =
+  AdminPagosRevisarRequestIdRouteImport.update({
+    id: '/admin_/pagos_/revisar/$requestId',
+    path: '/admin/pagos/revisar/$requestId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin/nuevo': typeof AdminNuevoRoute
+  '/admin/pagos': typeof AdminPagosRoute
+  '/pago/$requestId': typeof PagoRequestIdRoute
   '/producto/$productId': typeof ProductoProductIdRoute
   '/admin/editar/$productId': typeof AdminEditarProductIdRoute
+  '/admin/pagos/nuevo': typeof AdminPagosNuevoRoute
+  '/admin/pagos/qr': typeof AdminPagosQrRoute
+  '/producto/$productId/pagar': typeof ProductoProductIdPagarRoute
+  '/admin/pagos/revisar/$requestId': typeof AdminPagosRevisarRequestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin/nuevo': typeof AdminNuevoRoute
+  '/admin/pagos': typeof AdminPagosRoute
+  '/pago/$requestId': typeof PagoRequestIdRoute
   '/producto/$productId': typeof ProductoProductIdRoute
   '/admin/editar/$productId': typeof AdminEditarProductIdRoute
+  '/admin/pagos/nuevo': typeof AdminPagosNuevoRoute
+  '/admin/pagos/qr': typeof AdminPagosQrRoute
+  '/producto/$productId/pagar': typeof ProductoProductIdPagarRoute
+  '/admin/pagos/revisar/$requestId': typeof AdminPagosRevisarRequestIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin_/nuevo': typeof AdminNuevoRoute
+  '/admin_/pagos': typeof AdminPagosRoute
+  '/pago/$requestId': typeof PagoRequestIdRoute
   '/producto/$productId': typeof ProductoProductIdRoute
   '/admin_/editar/$productId': typeof AdminEditarProductIdRoute
+  '/admin_/pagos_/nuevo': typeof AdminPagosNuevoRoute
+  '/admin_/pagos_/qr': typeof AdminPagosQrRoute
+  '/producto/$productId_/pagar': typeof ProductoProductIdPagarRoute
+  '/admin_/pagos_/revisar/$requestId': typeof AdminPagosRevisarRequestIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -69,30 +124,54 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/nuevo'
+    | '/admin/pagos'
+    | '/pago/$requestId'
     | '/producto/$productId'
     | '/admin/editar/$productId'
+    | '/admin/pagos/nuevo'
+    | '/admin/pagos/qr'
+    | '/producto/$productId/pagar'
+    | '/admin/pagos/revisar/$requestId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/admin/nuevo'
+    | '/admin/pagos'
+    | '/pago/$requestId'
     | '/producto/$productId'
     | '/admin/editar/$productId'
+    | '/admin/pagos/nuevo'
+    | '/admin/pagos/qr'
+    | '/producto/$productId/pagar'
+    | '/admin/pagos/revisar/$requestId'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/admin_/nuevo'
+    | '/admin_/pagos'
+    | '/pago/$requestId'
     | '/producto/$productId'
     | '/admin_/editar/$productId'
+    | '/admin_/pagos_/nuevo'
+    | '/admin_/pagos_/qr'
+    | '/producto/$productId_/pagar'
+    | '/admin_/pagos_/revisar/$requestId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AdminNuevoRoute: typeof AdminNuevoRoute
+  AdminPagosRoute: typeof AdminPagosRoute
+  PagoRequestIdRoute: typeof PagoRequestIdRoute
   ProductoProductIdRoute: typeof ProductoProductIdRoute
   AdminEditarProductIdRoute: typeof AdminEditarProductIdRoute
+  AdminPagosNuevoRoute: typeof AdminPagosNuevoRoute
+  AdminPagosQrRoute: typeof AdminPagosQrRoute
+  ProductoProductIdPagarRoute: typeof ProductoProductIdPagarRoute
+  AdminPagosRevisarRequestIdRoute: typeof AdminPagosRevisarRequestIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -118,6 +197,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNuevoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/pagos': {
+      id: '/admin_/pagos'
+      path: '/admin/pagos'
+      fullPath: '/admin/pagos'
+      preLoaderRoute: typeof AdminPagosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pago/$requestId': {
+      id: '/pago/$requestId'
+      path: '/pago/$requestId'
+      fullPath: '/pago/$requestId'
+      preLoaderRoute: typeof PagoRequestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/producto/$productId': {
       id: '/producto/$productId'
       path: '/producto/$productId'
@@ -132,6 +225,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEditarProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/pagos_/nuevo': {
+      id: '/admin_/pagos_/nuevo'
+      path: '/admin/pagos/nuevo'
+      fullPath: '/admin/pagos/nuevo'
+      preLoaderRoute: typeof AdminPagosNuevoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin_/pagos_/qr': {
+      id: '/admin_/pagos_/qr'
+      path: '/admin/pagos/qr'
+      fullPath: '/admin/pagos/qr'
+      preLoaderRoute: typeof AdminPagosQrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/producto/$productId_/pagar': {
+      id: '/producto/$productId_/pagar'
+      path: '/producto/$productId/pagar'
+      fullPath: '/producto/$productId/pagar'
+      preLoaderRoute: typeof ProductoProductIdPagarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin_/pagos_/revisar/$requestId': {
+      id: '/admin_/pagos_/revisar/$requestId'
+      path: '/admin/pagos/revisar/$requestId'
+      fullPath: '/admin/pagos/revisar/$requestId'
+      preLoaderRoute: typeof AdminPagosRevisarRequestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -139,8 +260,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AdminNuevoRoute: AdminNuevoRoute,
+  AdminPagosRoute: AdminPagosRoute,
+  PagoRequestIdRoute: PagoRequestIdRoute,
   ProductoProductIdRoute: ProductoProductIdRoute,
   AdminEditarProductIdRoute: AdminEditarProductIdRoute,
+  AdminPagosNuevoRoute: AdminPagosNuevoRoute,
+  AdminPagosQrRoute: AdminPagosQrRoute,
+  ProductoProductIdPagarRoute: ProductoProductIdPagarRoute,
+  AdminPagosRevisarRequestIdRoute: AdminPagosRevisarRequestIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

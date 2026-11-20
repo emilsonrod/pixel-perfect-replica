@@ -39,3 +39,6 @@ use the editor.
 - Define product context and its consumer hook in a separate non-component module, while the provider module exports only its component; hot updates must not recreate context underneath mounted consumers.
 - Use semantic global design tokens and shared UI controls for all presentation; reference-specific styling stays in the central stylesheet.
 - Validate and resize image uploads in the browser and accept only local image data or managed asset references; no remote fetch or server is required in this iteration.
+- Keep QR-payment rules in a separate feature model with a stable context and hydration-safe browser provider; local demonstrations must never imply shared storage or bank verification.
+- Snapshot product, amount and recipient QR in each payment request, and require an explicit bank-verification acknowledgment for idempotent manual confirmation; receipts must never mark a request paid.
+- Preserve original QR image pixels when validating uploads; cropping and lossy recompression can make bank codes unusable.

@@ -38,7 +38,7 @@ Las pantallas están separadas en `CatalogPage`, `ProductDetailPage`, `AdminPage
 
 Los cuatro productos iniciales, Casa Luma y sus descripciones son datos de ejemplo. Las fotografías son recreaciones generadas siguiendo la referencia, no fotografías originales del negocio. Toda modificación se guarda exclusivamente en `localStorage`, no en un servidor.
 
-La administración no tiene control de acceso. No usarla para datos privados. No hay cuentas de negocios, servidor compartido, inventario, pagos, pedidos ni sincronización entre dispositivos. Un producto creado o modificado en un navegador no aparecerá en el navegador de otro cliente; compartir estos enlaces solo es útil para demostración hasta conectar almacenamiento compartido. Los enlaces de los cuatro productos de ejemplo sí existen en cada navegador nuevo.
+La administración no tiene control de acceso. No usarla para datos privados. No hay cuentas de negocios, servidor compartido, inventario, procesamiento bancario, gestión de pedidos ni sincronización entre dispositivos. Un producto creado o modificado en un navegador no aparecerá en el navegador de otro cliente; compartir estos enlaces solo es útil para demostración hasta conectar almacenamiento compartido. Los enlaces de los cuatro productos de ejemplo sí existen en cada navegador nuevo.
 
 Los metadatos de detalle usan los productos de ejemplo o un título genérico, ya que los productos locales no existen durante la renderización en servidor. Las miniaturas sociales para productos locales requieren almacenamiento compartido.
 
@@ -56,3 +56,41 @@ WhatsApp abre su servicio externo con el texto preparado; la selección de desti
 - WhatsApp abrió su página de envío con el nombre y enlace del producto correctamente preparados. No se envió ningún mensaje.
 
 No se afirma haber probado sesión, persistencia de servidor ni entrega de mensajes porque no se implementan en esta iteración. La herramienta media-cli se usó para recrear las fotografías de la colección.
+
+## Módulo de pagos QR · demostración local
+
+El usuario confirmó conservar el alcance local de la primera iteración. El diseño `payment.jpg` es la referencia de las pantallas de configuración, solicitud, QR del cliente, revisión y pago recibido. No se usó la captura como un QR bancario ni se cargó un código ficticio en los datos iniciales.
+
+### Funcionalidades
+
+- En **Administrar → Pagos**, el administrador carga o reemplaza una imagen QR bancaria y configura el destinatario. Se valida JPG, PNG o WebP de hasta 5 MB y que la imagen pueda abrirse. Se conservan los píxeles originales del QR, sin recortar ni recomprimir; no se verifica su contenido bancario.
+- El administrador crea una solicitud con producto, nombre del cliente e importe positivo con dos decimales. El QR, destinatario, producto e importe quedan registrados en la solicitud para que los cambios posteriores no alteren una solicitud existente.
+- El cliente accede desde **Pagar con QR** en el detalle de un producto publicado con precio positivo, ingresa su nombre y ve la solicitud con el precio de ese producto. Sin QR configurado no se crea una solicitud.
+- El cliente puede ver y descargar el QR original, adjuntar o reemplazar una imagen de comprobante y abrir WhatsApp con un aviso preparado. Adjuntar un comprobante deja el pago pendiente, nunca lo confirma.
+- El administrador ve solicitudes pendientes y confirmadas, abre el comprobante y marca que verificó el ingreso en su banco antes de confirmar manualmente. La confirmación conserva su fecha original si se repite.
+- El cliente ve el estado confirmado después de la revisión. Los datos persisten al recargar y se sincronizan entre pestañas de este navegador; los errores de guardado no se presentan como éxito.
+
+### Pantallas y archivos
+
+- Nuevas pantallas: `AdminPaymentsPage`, `QrSettingsPage`, `PaymentRequestForm`, `CustomerPaymentPage` y `ReviewPaymentPage` en `src/features/payments/`.
+- Presentación reutilizable: `AdminTabs`, `QrPreview`, `PaymentStatus`, `PaymentAmount`, `PaymentReceived` y elementos de navegación/avisos en `payment-ui.tsx`, con botones y controles existentes.
+- Lógica separada: `model.ts` para reglas y estados, `images.ts` para preservar el QR, `share.ts` para enlaces/descarga/WhatsApp y contexto estable con `PaymentProvider` para almacenamiento local.
+- Nuevas páginas: `/admin/pagos`, `/admin/pagos/qr`, `/admin/pagos/nuevo`, `/admin/pagos/revisar/$requestId`, `/pago/$requestId` y `/producto/$productId/pagar`, con metadatos propios y sin indexación de solicitudes.
+- Integración en `src/routes/__root.tsx`, administración y detalle del catálogo; estilos y tokens nuevos centralizados en `src/styles.css`.
+- Pruebas nuevas en `src/test/payment-rules.test.ts` y `src/test/payment-provider.test.tsx`.
+
+### Verificación realizada
+
+- **34 pruebas aprobadas**: 17 nuevas para pagos y 17 existentes de catálogo, contexto y navegación; comprobación de código sin errores ni avisos en el módulo nuevo.
+- Navegador real: configuración sin imagen rechazada, carga de QR propio de prueba, guardado/recarga, solicitud con cliente obligatorio, rechazo de importe negativo, creación con R$ 49,00 y copia de enlace.
+- Descarga del QR comparada byte por byte con el archivo cargado: original conservado.
+- Carga de comprobante de prueba, estado todavía pendiente, revisión del administrador, confirmación tras marcar verificación bancaria y lectura del estado confirmado desde la pantalla del cliente después de recargar.
+- Inicio del pago desde el detalle del catálogo y filtros de pagos pendientes/confirmados comprobados.
+- Pantallas nuevas revisadas a 375, 390, 768 y 1440 píxeles sin desbordamiento horizontal; capturas móviles/escritorio inspeccionadas; sin errores de ejecución en el recorrido.
+- En un navegador independiente, el enlace muestra solicitud no disponible: se comprobó que no se simula almacenamiento compartido.
+
+### Límites
+
+No se procesó ni verificó ninguna transferencia real. El banco recibe el pago fuera de la aplicación; la confirmación es un registro manual realizado por quien usa la pantalla del administrador. La demostración no distingue identidades ni restringe permisos, por lo que no debe usarse para información privada ni como prueba financiera. El QR y los comprobantes se guardan solo en este navegador y pueden agotar su espacio disponible.
+
+Los enlaces de solicitud no funcionan en otros dispositivos, aunque se puedan copiar o preparar en WhatsApp. WhatsApp no adjunta ni envía automáticamente el comprobante. Para uso real entre administrador y clientes se necesita almacenamiento compartido y acceso protegido; no se activaron porque se confirmó la demostración local.

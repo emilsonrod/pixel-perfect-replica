@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, MessageCircle, Share2 } from "lucide-react";
+import { ArrowLeft, MessageCircle, QrCode, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/catalog/icon-button";
 import { EmptyState } from "@/components/catalog/empty-state";
@@ -8,9 +8,11 @@ import { SiteFooter } from "@/components/catalog/site-shell";
 import { useProducts } from "./product-context";
 import { formatPrice } from "./model";
 import { shareProduct, whatsappUrl } from "./share";
+import { usePayments } from "@/features/payments/payment-context";
 
 export function ProductDetailPage({ productId }: { productId: string }) {
   const { products, ready } = useProducts();
+  const { config } = usePayments();
   const product = products.find((item) => item.id === productId && item.published);
   const [photo, setPhoto] = useState(0);
   if (!ready)
@@ -88,6 +90,23 @@ export function ProductDetailPage({ productId }: { productId: string }) {
               <Share2 strokeWidth={1.5} />
             </IconButton>
           </div>
+          {product.price > 0 && (
+            <div className="detail-payment-action">
+              {config ? (
+                <Button asChild className="w-full">
+                  <Link to="/producto/$productId/pagar" params={{ productId: product.id }}>
+                    <QrCode strokeWidth={1.5} />
+                    Pagar con QR
+                  </Link>
+                </Button>
+              ) : (
+                <Button variant="outline" disabled className="w-full">
+                  <QrCode />
+                  Pago con QR no configurado
+                </Button>
+              )}
+            </div>
+          )}
         </section>
       </div>
       <SiteFooter />
