@@ -6,3 +6,4 @@
 - [x] Validación de formularios y almacenamiento local explícito.
 - [x] Pruebas de reglas, recorrido completo y revisión de tamaños de pantalla.
 - [x] Documentar implementación, datos de ejemplo y limitaciones.
+- [x] Corregir el error de contexto de productos al actualizar la vista previa y verificar navegación y conservación de datos.

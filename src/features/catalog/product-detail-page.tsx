@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/catalog/icon-button";
 import { EmptyState } from "@/components/catalog/empty-state";
 import { SiteFooter } from "@/components/catalog/site-shell";
-import { useProducts } from "./product-provider";
+import { useProducts } from "./product-context";
 import { formatPrice } from "./model";
 import { shareProduct, whatsappUrl } from "./share";
 

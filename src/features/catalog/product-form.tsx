@@ -18,7 +18,7 @@ import { EmptyState } from "@/components/catalog/empty-state";
 import { categories, productInputSchema, type Product } from "./model";
 import { referencePhotos } from "./seed";
 import { preparePhoto } from "./images";
-import { useProducts } from "./product-provider";
+import { useProducts } from "./product-context";
 
 export function ProductFormPage({ productId }: { productId?: string }) {
   const { products, ready } = useProducts();

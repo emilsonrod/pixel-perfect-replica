@@ -25,7 +25,7 @@ import { SearchField } from "@/components/catalog/search-field";
 import { EmptyState } from "@/components/catalog/empty-state";
 import { SiteFooter } from "@/components/catalog/site-shell";
 import { filterProducts, formatPrice, type Product } from "./model";
-import { useProducts } from "./product-provider";
+import { useProducts } from "./product-context";
 import { shareProduct } from "./share";
 
 export function AdminPage() {

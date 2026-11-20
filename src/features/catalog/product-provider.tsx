@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { initialProducts } from "./seed";
 import {
@@ -8,15 +8,7 @@ import {
   type Product,
   type ProductInput,
 } from "./model";
-
-type ProductsContextValue = {
-  products: Product[];
-  ready: boolean;
-  saveProduct: (input: ProductInput, id?: string) => boolean;
-  removeProduct: (id: string) => boolean;
-  togglePublication: (id: string) => boolean;
-};
-const ProductsContext = createContext<ProductsContextValue | undefined>(undefined);
+import { ProductsContext } from "./product-context";
 
 export function ProductProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -84,10 +76,4 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       {children}
     </ProductsContext.Provider>
   );
-}
-
-export function useProducts() {
-  const context = useContext(ProductsContext);
-  if (!context) throw new Error("ProductProvider is required.");
-  return context;
 }

@@ -5,7 +5,7 @@ import { SearchField } from "@/components/catalog/search-field";
 import { EmptyState } from "@/components/catalog/empty-state";
 import { SiteFooter } from "@/components/catalog/site-shell";
 import { categories, filterProducts } from "./model";
-import { useProducts } from "./product-provider";
+import { useProducts } from "./product-context";
 
 export function CatalogPage() {
   const { products } = useProducts();
