@@ -238,7 +238,7 @@ function ProductForm({ product }: { product: Product | undefined }) {
           </div>
           <div>
             <label className="field-label" htmlFor="product-price">
-              Precio (R$)
+              Precio (Bs)
             </label>
             <Input
               id="product-price"

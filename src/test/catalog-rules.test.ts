@@ -63,7 +63,7 @@ describe("Product rules", () => {
       sample,
     ]);
   });
-  it("displays the reference mug price in reais", () => {
-    expect(formatPrice(49).replace(/\s/g, " ")).toBe("R$ 49,00");
+  it("displays the reference mug price in bolivianos", () => {
+    expect(formatPrice(49).replace(/\s/g, " ")).toBe("Bs 49,00");
   });
 });

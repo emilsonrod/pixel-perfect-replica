@@ -146,7 +146,7 @@ export function PaymentRequestForm({ productId }: { productId?: string }) {
           {!customerFlow && (
             <div>
               <label className="field-label" htmlFor="payment-request-amount">
-                Importe a solicitar (R$)
+                Importe a solicitar (Bs)
               </label>
               <Input
                 id="payment-request-amount"

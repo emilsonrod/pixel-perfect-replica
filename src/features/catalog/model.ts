@@ -58,7 +58,7 @@ export function filterProducts(
 }
 
 export function formatPrice(price: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(price);
+  return "Bs " + new Intl.NumberFormat("es-BO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
 }
 
 export function readStoredProducts(raw: string | null, fallback: Product[]): Product[] {
