@@ -58,6 +58,8 @@ function ProductForm({ product }: { product: Product | undefined }) {
     Partial<Record<"name" | "description" | "price" | "category" | "images" | "published", string>>
   >({});
   const [processing, setProcessing] = useState(false);
+  const [brokenPhotos, setBrokenPhotos] = useState<Set<string>>(() => new Set());
+  const availablePhotos = referencePhotos.filter((image) => !brokenPhotos.has(image.url));
   const fileInput = useRef<HTMLInputElement>(null);
 
   const addFiles = async (files: FileList | null) => {
@@ -80,7 +82,7 @@ function ProductForm({ product }: { product: Product | undefined }) {
     }
   };
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (processing) return;
     const result = productInputSchema.safeParse({
@@ -113,7 +115,10 @@ function ProductForm({ product }: { product: Product | undefined }) {
       return;
     }
     setErrors({});
-    if (saveProduct(result.data, product?.id)) {
+    setProcessing(true);
+    const saved = await saveProduct(result.data, product?.id);
+    setProcessing(false);
+    if (saved) {
       toast.success(product ? "Producto actualizado." : "Producto creado.");
       navigate({ to: "/admin" });
     }
@@ -189,11 +194,13 @@ function ProductForm({ product }: { product: Product | undefined }) {
               {errors.images}
             </p>
           )}
-          <p className="mt-7 text-xs text-muted-foreground">
-            O elige una fotografía de la colección
-          </p>
+          {availablePhotos.length > 0 && (
+            <p className="mt-7 text-xs text-muted-foreground">
+              O elige una fotografía de la colección
+            </p>
+          )}
           <div className="reference-picker">
-            {referencePhotos.map((image) => (
+            {availablePhotos.map((image) => (
               <Button
                 variant="photo"
                 type="button"
@@ -211,7 +218,15 @@ function ProductForm({ product }: { product: Product | undefined }) {
                   setErrors((current) => ({ ...current, images: "" }));
                 }}
               >
-                <img src={image.url} alt={image.name} width={80} height={80} />
+                <img
+                  src={image.url}
+                  alt={image.name}
+                  width={80}
+                  height={80}
+                  // Collection photos live on Lovable's asset host and do not exist when the app
+                  // runs elsewhere. Hide the ones that fail so nobody saves a broken reference.
+                  onError={() => setBrokenPhotos((current) => new Set(current).add(image.url))}
+                />
               </Button>
             ))}
           </div>

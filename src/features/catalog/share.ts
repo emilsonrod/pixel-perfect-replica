@@ -1,14 +1,14 @@
 import { toast } from "sonner";
-import { productSchema, type Product } from "./model";
+import { productPath, productSchema, type Product } from "./model";
 
-export function productUrl(id: string) {
-  return `${window.location.origin}/producto/${encodeURIComponent(id)}`;
+export function productUrl(segment: string) {
+  return `${window.location.origin}/producto/${encodeURIComponent(segment)}`;
 }
 
 export async function shareProduct(product: Product) {
   const validated = productSchema.safeParse(product);
   if (!validated.success) return;
-  const url = productUrl(validated.data.id);
+  const url = productUrl(productPath(validated.data));
   if (navigator.share) {
     try {
       await navigator.share({
@@ -31,6 +31,6 @@ export async function shareProduct(product: Product) {
 
 export function whatsappUrl(product: Product) {
   const validated = productSchema.parse(product);
-  const message = `Mira ${validated.name} de Casa Luma: ${productUrl(validated.id)}`;
+  const message = `Mira ${validated.name} de Casa Luma: ${productUrl(productPath(validated))}`;
   return `https://wa.me/?text=${encodeURIComponent(message)}`;
 }

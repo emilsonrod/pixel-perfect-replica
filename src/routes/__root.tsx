@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ProductProvider } from "@/features/catalog/product-provider";
 import { PaymentProvider } from "@/features/payments/payment-provider";
+import { AuthProvider } from "@/features/auth/auth-provider";
 import { SiteHeader } from "@/components/catalog/site-shell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
@@ -127,13 +128,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delayDuration={300}>
-        <ProductProvider>
-          <PaymentProvider>
-            <SiteHeader />
-            <Outlet />
-            <Toaster position="bottom-right" />
-          </PaymentProvider>
-        </ProductProvider>
+        <AuthProvider>
+          <ProductProvider>
+            <PaymentProvider>
+              <SiteHeader />
+              <Outlet />
+              <Toaster position="bottom-right" />
+            </PaymentProvider>
+          </ProductProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

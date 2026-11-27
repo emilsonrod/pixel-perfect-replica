@@ -4,7 +4,9 @@ import { Download, Loader2, MessageCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { preparePhoto } from "@/features/catalog/images";
+import { safeImageDataUri } from "@/lib/safe-image";
 import { usePayments } from "./payment-context";
+import { usePaymentRequest } from "./use-payment-request";
 import { downloadQr, paymentWhatsappUrl } from "./share";
 import {
   LocalPaymentNotice,
@@ -17,17 +19,21 @@ import {
 } from "./payment-ui";
 
 export function CustomerPaymentPage({ requestId }: { requestId: string }) {
-  const { ready, requests, saveReceipt } = usePayments();
-  const request = requests.find((item) => item.id === requestId);
+  const { saveReceipt } = usePayments();
+  const { loading, request, reload } = usePaymentRequest(requestId);
   const [processing, setProcessing] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
-  if (!ready || !request) return <PaymentUnavailable loading={!ready} />;
+  if (loading || !request) return <PaymentUnavailable loading={loading} />;
+  // Sanitize before using as href/src — defense-in-depth (SEC-07).
+  const safeReceipt = safeImageDataUri(request.receipt);
   const upload = async (file?: File) => {
     if (!file || request.status === "paid") return;
     setProcessing(true);
     try {
-      if (saveReceipt(request.id, await preparePhoto(file)))
+      if (await saveReceipt(request.id, await preparePhoto(file))) {
+        await reload();
         toast.success("Comprobante guardado. El pago sigue pendiente de confirmación.");
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo cargar el comprobante.");
     } finally {
@@ -82,15 +88,15 @@ export function CustomerPaymentPage({ requestId }: { requestId: string }) {
               <h2>Comprobante de pago</h2>
               <span>{request.receipt ? "Adjuntado" : "Sin adjuntar"}</span>
             </div>
-            {request.receipt && (
+            {safeReceipt && (
               <a
-                href={request.receipt}
+                href={safeReceipt}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="payment-receipt-preview"
                 aria-label="Ver comprobante adjuntado"
               >
-                <img src={request.receipt} alt="Comprobante adjuntado" width={220} height={140} />
+                <img src={safeReceipt} alt="Comprobante adjuntado" width={220} height={140} />
               </a>
             )}
             <input
@@ -111,7 +117,7 @@ export function CustomerPaymentPage({ requestId }: { requestId: string }) {
               {processing ? <Loader2 className="animate-spin" /> : <Upload />}
               {processing
                 ? "Cargando…"
-                : request.receipt
+                : safeReceipt
                   ? "Reemplazar comprobante"
                   : "Adjuntar comprobante"}
             </Button>

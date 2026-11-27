@@ -1,79 +1,101 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { initialProducts } from "./seed";
-import {
-  productInputSchema,
-  readStoredProducts,
-  STORAGE_KEY,
-  type Product,
-  type ProductInput,
-} from "./model";
+import { useAuth } from "@/features/auth/auth-context";
+import { isSupabaseConfigured } from "@/lib/supabase";
+import { userMessage } from "@/lib/supabase-errors";
+import { productInputSchema, type Product, type ProductInput } from "./model";
 import { ProductsContext } from "./product-context";
+import { createSupabaseProductRepository, type ProductRepository } from "./repository";
 
-export function ProductProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+const LOAD_ERROR = "No se pudo cargar el catálogo. Revisa tu conexión e inténtalo de nuevo.";
+
+export function ProductProvider({
+  children,
+  repository,
+}: {
+  children: ReactNode;
+  /** Defaults to Supabase; tests pass an in-memory implementation. */
+  repository?: ProductRepository;
+}) {
+  const auth = useAuth();
+  const repo = useMemo(() => repository ?? createSupabaseProductRepository(), [repository]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const available = repository !== undefined || isSupabaseConfigured;
+  const userId = auth.user?.id ?? null;
 
+  const reload = useCallback(async () => {
+    if (!available) {
+      setLoadError("Supabase no está configurado.");
+      return;
+    }
+    try {
+      setProducts(await repo.list());
+      setLoadError(null);
+    } catch {
+      setLoadError(LOAD_ERROR);
+    }
+  }, [available, repo]);
+
+  // Load once the session is known, and again when the user signs in or out:
+  // members also receive the unpublished products.
   useEffect(() => {
-    try {
-      setProducts(readStoredProducts(localStorage.getItem(STORAGE_KEY), initialProducts));
-    } catch {
-      toast.error(
-        "El almacenamiento de este navegador no está disponible. Los cambios no se podrán guardar.",
-      );
-    }
-    setReady(true);
-    const sync = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY)
-        setProducts(readStoredProducts(event.newValue, initialProducts));
+    if (!auth.ready) return;
+    let cancelled = false;
+    void reload().finally(() => {
+      if (!cancelled) setReady(true);
+    });
+    return () => {
+      cancelled = true;
     };
-    window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
+  }, [auth.ready, userId, reload]);
 
-  const persist = (next: Product[]) => {
-    if (!ready) return false;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      setProducts(next);
+  const mutate = useCallback(
+    async (action: () => Promise<void>, fallback: string) => {
+      if (!ready || !available) return false;
+      try {
+        await action();
+      } catch (error) {
+        toast.error(userMessage(error, fallback));
+        return false;
+      }
+      await reload();
       return true;
-    } catch {
-      toast.error(
-        "No se pudo guardar. El almacenamiento puede estar lleno; prueba con fotografías más pequeñas.",
-      );
-      return false;
-    }
-  };
-  const saveProduct = (input: ProductInput, id?: string) => {
-    const parsed = productInputSchema.safeParse(input);
-    if (!parsed.success) return false;
-    if (id && !products.some((product) => product.id === id)) {
-      toast.error("Este producto ya no existe.");
-      return false;
-    }
-    const product: Product = { ...parsed.data, id: id ?? crypto.randomUUID() };
-    const next = id
-      ? products.map((current) => (current.id === id ? product : current))
-      : [...products, product];
-    return persist(next);
-  };
-
-  return (
-    <ProductsContext.Provider
-      value={{
-        products,
-        ready,
-        saveProduct,
-        removeProduct: (id) => persist(products.filter((product) => product.id !== id)),
-        togglePublication: (id) =>
-          persist(
-            products.map((product) =>
-              product.id === id ? { ...product, published: !product.published } : product,
-            ),
-          ),
-      }}
-    >
-      {children}
-    </ProductsContext.Provider>
+    },
+    [available, ready, reload],
   );
+
+  const value = useMemo(
+    () => ({
+      products,
+      ready,
+      loadError,
+      reload,
+      saveProduct: async (input: ProductInput, id?: string) => {
+        if (!productInputSchema.safeParse(input).success) return false;
+        if (id && !products.some((product) => product.id === id)) {
+          toast.error("Este producto ya no existe.");
+          return false;
+        }
+        return mutate(
+          () => repo.save(productInputSchema.parse(input), id),
+          "No se pudo guardar el producto. Inténtalo de nuevo.",
+        );
+      },
+      removeProduct: (id: string) =>
+        mutate(() => repo.remove(id), "No se pudo eliminar el producto."),
+      togglePublication: async (id: string) => {
+        const product = products.find((item) => item.id === id);
+        if (!product) return false;
+        return mutate(
+          () => repo.setPublished(id, !product.published),
+          "No se pudo cambiar la publicación.",
+        );
+      },
+    }),
+    [loadError, mutate, products, ready, reload, repo],
+  );
+
+  return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
 }

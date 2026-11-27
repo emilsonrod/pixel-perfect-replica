@@ -35,7 +35,7 @@ function QrSettingsForm({ config }: { config: QrConfig | null }) {
       if (fileInput.current) fileInput.current.value = "";
     }
   };
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (processing) return;
     const parsed = qrConfigSchema.safeParse({ image, recipient });
@@ -43,7 +43,10 @@ function QrSettingsForm({ config }: { config: QrConfig | null }) {
       setError(parsed.error.issues[0]?.message ?? "Completa los datos.");
       return;
     }
-    if (saveQr(parsed.data)) {
+    setProcessing(true);
+    const saved = await saveQr(parsed.data);
+    setProcessing(false);
+    if (saved) {
       toast.success("QR del negocio guardado.");
       navigate({ to: "/admin/pagos" });
     }

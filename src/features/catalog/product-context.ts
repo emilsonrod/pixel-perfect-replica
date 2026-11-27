@@ -3,10 +3,14 @@ import type { Product, ProductInput } from "./model";
 
 export type ProductsContextValue = {
   products: Product[];
+  /** True once the first load finished, whether it worked or not. */
   ready: boolean;
-  saveProduct: (input: ProductInput, id?: string) => boolean;
-  removeProduct: (id: string) => boolean;
-  togglePublication: (id: string) => boolean;
+  /** Message when the catalog could not be loaded; null otherwise. */
+  loadError: string | null;
+  reload: () => Promise<void>;
+  saveProduct: (input: ProductInput, id?: string) => Promise<boolean>;
+  removeProduct: (id: string) => Promise<boolean>;
+  togglePublication: (id: string) => Promise<boolean>;
 };
 
 // The context lives outside the component refresh boundary so an updated consumer

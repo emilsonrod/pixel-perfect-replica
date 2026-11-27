@@ -1,12 +1,17 @@
 import { z } from "zod";
 
 export const categories = ["Cerámica", "Decoración", "Accesorios"] as const;
+// Accepted image sources: managed assets, local data URIs (previews before upload) and
+// https Supabase Storage URLs with the exact bucket/uuid/file layout used by this app.
+const REMOTE_IMAGE =
+  /^https:\/\/[A-Za-z0-9.-]+(:\d+)?\/storage\/v1\/object\/(public|sign)\/(product-images|payment-qr|payment-receipts)\/[0-9a-f-]{36}\/[A-Za-z0-9._-]+\.(webp|png|jpg|jpeg)(\?token=[A-Za-z0-9._-]+)?$/;
 export const imageSchema = z
   .string()
   .refine(
     (value) =>
       /^\/__l5e\/assets-v1\/[a-zA-Z0-9/-]+\.(webp|png|jpg|jpeg)$/.test(value) ||
-      /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value),
+      /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value) ||
+      REMOTE_IMAGE.test(value),
     "Selecciona una fotografía válida.",
   );
 export const productInputSchema = z.object({
@@ -31,11 +36,22 @@ export const productInputSchema = z.object({
     .max(3, "Puedes agregar hasta 3 fotografías."),
   published: z.boolean(),
 });
-export const productSchema = productInputSchema.extend({ id: z.string().min(1).max(100) });
-export const storedProductsSchema = z.array(productSchema);
+export const productSchema = productInputSchema.extend({
+  id: z.string().min(1).max(100),
+  // Readable URL id (products.slug). Optional: new products may not have one.
+  slug: z.string().max(100).nullish(),
+});
 export type ProductInput = z.infer<typeof productInputSchema>;
 export type Product = z.infer<typeof productSchema>;
-export const STORAGE_KEY = "casa-luma-products-v1";
+
+/** Segment used in public URLs: the readable slug when the product has one, else its id. */
+export function productPath(product: Pick<Product, "id" | "slug">) {
+  return product.slug || product.id;
+}
+/** Matches a URL segment against a product by slug or id. */
+export function matchesProductPath(product: Pick<Product, "id" | "slug">, segment: string) {
+  return product.id === segment || product.slug === segment;
+}
 
 const normalize = (value: string) =>
   value
@@ -59,14 +75,4 @@ export function filterProducts(
 
 export function formatPrice(price: number) {
   return "Bs " + new Intl.NumberFormat("es-BO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
-}
-
-export function readStoredProducts(raw: string | null, fallback: Product[]): Product[] {
-  if (raw === null) return fallback;
-  try {
-    const result = storedProductsSchema.safeParse(JSON.parse(raw));
-    return result.success ? result.data : fallback;
-  } catch {
-    return fallback;
-  }
 }

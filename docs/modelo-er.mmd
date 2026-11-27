@@ -1,0 +1,85 @@
+erDiagram
+  auth_users ||--o{ business_members : "pertenece"
+  businesses ||--o{ business_members : "tiene"
+  businesses ||--o{ categories : "define"
+  businesses ||--o{ products : "vende"
+  businesses ||--o{ payment_qr_configs : "configura"
+  businesses ||--o{ payment_requests : "cobra"
+  categories ||--o{ products : "clasifica"
+  products ||--o{ product_images : "muestra"
+  products |o--o{ payment_requests : "origina"
+  payment_qr_configs ||--o{ payment_requests : "usa"
+  auth_users |o--o{ payment_requests : "confirma"
+
+  businesses {
+    uuid id PK
+    text slug UK
+    varchar name
+    varchar tagline
+    varchar footer_text
+    char currency_code
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  business_members {
+    uuid business_id PK
+    uuid user_id PK
+    business_role role
+    timestamptz created_at
+  }
+  categories {
+    uuid id PK
+    uuid business_id FK
+    varchar name
+    smallint sort_order
+    timestamptz created_at
+  }
+  products {
+    uuid id PK
+    uuid business_id FK
+    uuid category_id FK
+    text slug
+    varchar name
+    text description
+    numeric price
+    boolean published
+    text name_search
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  product_images {
+    uuid id PK
+    uuid product_id FK
+    smallint position
+    text image_ref
+    timestamptz created_at
+  }
+  payment_qr_configs {
+    uuid id PK
+    uuid business_id FK
+    text image_path
+    varchar recipient
+    boolean is_active
+    uuid created_by FK
+    timestamptz created_at
+  }
+  payment_requests {
+    uuid id PK
+    uuid business_id FK
+    uuid product_id FK
+    varchar product_name
+    text product_image_ref
+    varchar customer_name
+    numeric amount
+    uuid qr_config_id FK
+    payment_status status
+    payment_source source
+    text receipt_path
+    timestamptz confirmed_at
+    uuid confirmed_by FK
+    timestamptz created_at
+    timestamptz updated_at
+  }
+  auth_users {
+    uuid id PK
+  }

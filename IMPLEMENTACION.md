@@ -1,5 +1,7 @@
 # Catálogo Digital · Casa Luma
 
+> **Nota de actualización.** Este documento describe la primera iteración, con datos en `localStorage` y sin cuentas. Desde la integración con Supabase los productos, el QR y los pagos se guardan en la base de datos, `/admin` exige iniciar sesión y los enlaces de pago funcionan entre dispositivos. Los avisos de "demostración local" y los límites sobre almacenamiento del navegador ya no aplican. La configuración vigente está en la sección "Conexión con Supabase" del `README.md`.
+
 ## Funcionalidades
 
 - Catálogo público en `/` con los productos publicados, fotografías, nombre, precio, descripción breve, búsqueda por nombre y filtros por categoría.

@@ -4,8 +4,8 @@ import {
   attachReceipt,
   buildPaymentRequest,
   confirmPayment,
+  paymentRequestSchema,
   qrConfigSchema,
-  readPaymentState,
   requestInputSchema,
 } from "@/features/payments/model";
 import { paymentImageUploadSchema } from "@/features/payments/images";
@@ -92,19 +92,17 @@ describe("QR payment rules", () => {
   it("does not allow a receipt to replace a confirmed payment", () => {
     expect(() => attachReceipt(confirmPayment(pending, true, time), qr.image)).toThrow();
   });
-  it("validates stored records and rejects corrupt payment states", () => {
-    expect(readPaymentState("broken")).toEqual({ config: null, requests: [] });
+  it("rejects a paid request without confirmation time and a pending one with it", () => {
     expect(
-      readPaymentState(
-        JSON.stringify({
-          config: qr,
-          requests: [{ ...pending, status: "paid", confirmedAt: null }],
-        }),
-      ),
-    ).toEqual({ config: null, requests: [] });
+      paymentRequestSchema.safeParse({ ...pending, status: "paid", confirmedAt: null }).success,
+    ).toBe(false);
     expect(
-      readPaymentState(JSON.stringify({ config: qr, requests: [pending] })).requests[0]?.amount,
-    ).toBe(49);
+      paymentRequestSchema.safeParse({ ...pending, status: "pending", confirmedAt: time }).success,
+    ).toBe(false);
+    expect(paymentRequestSchema.safeParse(pending).success).toBe(true);
+  });
+  it("keeps a request whose product was deleted", () => {
+    expect(paymentRequestSchema.safeParse({ ...pending, productId: null }).success).toBe(true);
   });
   it("accepts JPG, PNG and WebP up to 5 MB, but not PDF or larger files", () => {
     for (const type of ["image/jpeg", "image/png", "image/webp"])

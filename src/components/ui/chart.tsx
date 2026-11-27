@@ -61,6 +61,41 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+// --- CSS sanitization helpers for ChartStyle (SEC-08) ---
+// Prevents CSS injection when config values come from user-controlled data.
+
+/** Strips any character that is not safe in a CSS [data-chart=...] attribute selector. */
+function sanitizeChartId(id: string): string {
+  return id.replace(/[^a-zA-Z0-9_-]/g, "");
+}
+
+/** Strips any character that is not safe as a CSS custom property key segment. */
+function sanitizeCssKey(key: string): string {
+  return key.replace(/[^a-zA-Z0-9_-]/g, "");
+}
+
+/**
+ * Allows only well-known CSS color formats:
+ *   - Hex: #rgb, #rrggbb, #rrggbbaa
+ *   - Functional: rgb(), rgba(), hsl(), hsla(), oklch(), color()
+ *   - CSS custom properties: var(--something)
+ *   - Named color keywords (letters only)
+ * Anything that does not match returns an empty string, which Zod/recharts
+ * treats as "no color" and skips the declaration.
+ */
+function sanitizeCssValue(value: string): string {
+  const trimmed = value.trim();
+  if (
+    /^#[0-9a-fA-F]{3,8}$/.test(trimmed) ||
+    /^(rgb|rgba|hsl|hsla|oklch|color)\([^)]*\)$/.test(trimmed) ||
+    /^var\(--[a-zA-Z0-9_-]+\)$/.test(trimmed) ||
+    /^[a-zA-Z]+$/.test(trimmed)
+  ) {
+    return trimmed;
+  }
+  return "";
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([, config]) => config.theme || config.color);
 
@@ -74,12 +109,13 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart=${sanitizeChartId(id)}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    return color ? `  --color-${sanitizeCssKey(key)}: ${sanitizeCssValue(color)};` : null;
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `,

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { QrSettingsPage } from "@/features/payments/qr-settings-page";
+import { RequireAdmin } from "@/features/auth/require-admin";
 
 export const Route = createFileRoute("/admin_/pagos_/qr")({
   head: () => ({
@@ -16,5 +17,9 @@ export const Route = createFileRoute("/admin_/pagos_/qr")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: QrSettingsPage,
+  component: () => (
+    <RequireAdmin>
+      <QrSettingsPage />
+    </RequireAdmin>
+  ),
 });

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatPrice } from "@/features/catalog/model";
+import { safeImageDataUri } from "@/lib/safe-image";
 import { usePayments } from "./payment-context";
 import { copyPaymentLink, paymentWhatsappUrl } from "./share";
 import {
@@ -21,6 +22,8 @@ export function ReviewPaymentPage({ requestId }: { requestId: string }) {
   const request = requests.find((item) => item.id === requestId);
   const [verified, setVerified] = useState(false);
   if (!ready || !request) return <PaymentUnavailable loading={!ready} />;
+  // Sanitize before using as href/src — defense-in-depth (SEC-07).
+  const safeReceipt = safeImageDataUri(request.receipt);
   return (
     <main className="payment-container fade-up">
       <PaymentHeading title={request.status === "paid" ? "Pago recibido" : "Revisar pago"} />
@@ -65,25 +68,25 @@ export function ReviewPaymentPage({ requestId }: { requestId: string }) {
                   : "El cliente todavía no adjuntó una imagen"}
               </p>
             </div>
-            {request.receipt && (
+            {safeReceipt && (
               <Button asChild variant="link" size="sm">
-                <a href={request.receipt} target="_blank" rel="noopener noreferrer">
+                <a href={safeReceipt} target="_blank" rel="noopener noreferrer">
                   Ver
                   <ExternalLink />
                 </a>
               </Button>
             )}
           </div>
-          {request.receipt && (
+          {safeReceipt && (
             <a
-              href={request.receipt}
+              href={safeReceipt}
               target="_blank"
               rel="noopener noreferrer"
               className="payment-receipt-preview"
               aria-label="Abrir comprobante"
             >
               <img
-                src={request.receipt}
+                src={safeReceipt}
                 alt="Comprobante recibido del cliente"
                 width={280}
                 height={150}
@@ -110,8 +113,8 @@ export function ReviewPaymentPage({ requestId }: { requestId: string }) {
           <Button
             className="payment-wide-button"
             disabled={!verified}
-            onClick={() => {
-              if (confirmRequest(request.id, verified)) {
+            onClick={async () => {
+              if (await confirmRequest(request.id, verified)) {
                 toast.success("Pago confirmado manualmente.");
                 setVerified(false);
               }

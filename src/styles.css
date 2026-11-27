@@ -5,6 +5,8 @@
  *   build resolves @import from the filesystem. Load those with a <link> in the head() of
  *   src/routes/__root.tsx and name the family in a --font-* token in @theme inline below.
  */
+/* Inter variable font from @fontsource-variable/inter — no Google Fonts CDN request (SEC-14). */
+@import "@fontsource-variable/inter";
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
 @source "../src";

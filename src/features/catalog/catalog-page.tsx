@@ -8,9 +8,10 @@ import { categories, filterProducts } from "./model";
 import { useProducts } from "./product-context";
 
 export function CatalogPage() {
-  const { products } = useProducts();
+  const { products, ready, loadError, reload } = useProducts();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("Todos");
+  // Members also receive unpublished products; the public catalog only shows published ones.
   const filtered = filterProducts(products, query, category);
   return (
     <main className="site-container fade-up">
@@ -54,7 +55,15 @@ export function CatalogPage() {
           </span>
           <span>Una pieza, muchas historias.</span>
         </div>
-        {filtered.length ? (
+        {!ready ? (
+          <p className="py-16 text-sm text-muted-foreground">Cargando productos…</p>
+        ) : loadError ? (
+          <EmptyState title="No pudimos cargar el catálogo" description={loadError}>
+            <Button variant="outline" onClick={() => void reload()}>
+              Reintentar
+            </Button>
+          </EmptyState>
+        ) : filtered.length ? (
           <div className="product-grid">
             {filtered.map((product) => (
               <ProductCard key={product.id} product={product} />

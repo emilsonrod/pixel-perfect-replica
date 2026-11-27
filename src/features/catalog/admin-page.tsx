@@ -125,8 +125,8 @@ export function AdminPage() {
                     checked={product.published}
                     disabled={!ready}
                     aria-label={`Publicar ${product.name}`}
-                    onCheckedChange={() => {
-                      if (togglePublication(product.id))
+                    onCheckedChange={async () => {
+                      if (await togglePublication(product.id))
                         toast.success(
                           product.published
                             ? "Producto retirado del catálogo."
@@ -194,8 +194,8 @@ export function AdminPage() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <Button
               variant="destructive"
-              onClick={() => {
-                if (deleting && removeProduct(deleting.id)) {
+              onClick={async () => {
+                if (deleting && (await removeProduct(deleting.id))) {
                   toast.success("Producto eliminado.");
                   setDeleting(null);
                 }

@@ -1,5 +1,61 @@
-# Logs
-logs
+# =====================================================================
+# Casa Luma · React + Vite + TanStack Start, conectado a Lovable y Supabase
+# =====================================================================
+# Qué NO se ignora a propósito (Lovable y el build los necesitan en git):
+#   .lovable/            configuración del proyecto en Lovable
+#   src/routeTree.gen.ts árbol de rutas generado; Lovable y el build lo usan
+#   bun.lock, package-lock.json   versiones exactas de dependencias
+#   supabase/migrations/ esquema gestionado por Lovable (si existe)
+#   .env.example         plantilla documentada de variables
+
+# ---------- Dependencias ----------
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+
+# ---------- Builds y cachés (Vite, TanStack Start, Nitro) ----------
+dist/
+dist-ssr/
+build/
+.output/
+.vinxi/
+.nitro/
+.tanstack/
+.vite/
+*.tsbuildinfo
+.eslintcache
+.cache/
+
+# ---------- Despliegue (Cloudflare / Wrangler) ----------
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# ---------- Supabase CLI (estado local, no el esquema) ----------
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# ---------- Variables de entorno y secretos ----------
+# Las claves reales van en Secrets de Lovable o en .env local, nunca en git.
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+
+# ---------- Pruebas ----------
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# ---------- Logs ----------
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,26 +63,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.output
-.vinxi
-.tanstack/**
-.nitro
-*.local
-
-# Wrangler / Cloudflare
-.wrangler/
-.dev.vars
-
-# Editor directories and files
+# ---------- Editores y sistema operativo ----------
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
+Thumbs.db
+Desktop.ini
