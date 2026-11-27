@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { imageSchema, productSchema, type Product } from "@/features/catalog/model";
 
-export const PAYMENT_STORAGE_KEY = "casa-luma-payments-v1";
 export const qrConfigSchema = z.object({
   image: imageSchema,
   recipient: z.string().trim().min(1, "El nombre del destinatario es obligatorio.").max(100),
@@ -20,7 +19,7 @@ export const requestInputSchema = z.object({
 });
 const requestBaseSchema = requestInputSchema.extend({
   id: z.string().uuid(),
-  productId: z.string().min(1),
+  productId: z.string().min(1).nullable(),
   productName: z.string().min(1).max(100),
   productImage: imageSchema,
   qr: qrConfigSchema,
@@ -45,16 +44,6 @@ export function formatPaymentDate(value: string) {
   return new Intl.DateTimeFormat("es", { dateStyle: "medium", timeStyle: "short" }).format(
     new Date(value),
   );
-}
-
-export function readPaymentState(raw: string | null): PaymentState {
-  if (raw === null) return emptyPaymentState;
-  try {
-    const result = paymentStateSchema.safeParse(JSON.parse(raw));
-    return result.success ? result.data : emptyPaymentState;
-  } catch {
-    return emptyPaymentState;
-  }
 }
 
 export function buildPaymentRequest(

@@ -10,8 +10,8 @@ export function LocalPaymentNotice() {
   return (
     <p className="payment-local-note">
       <ShieldCheck size={14} strokeWidth={1.5} />
-      Demostración local · Sin verificación bancaria ni acceso protegido. No uses datos privados.
-      Los enlaces solo funcionan en este navegador.
+      La aplicación no verifica transferencias: el negocio confirma cada pago manualmente tras
+      revisar su banco. Un comprobante adjunto no confirma el pago.
     </p>
   );
 }
@@ -44,7 +44,7 @@ export function PaymentUnavailable({ loading = false }: { loading?: boolean }) {
     <main className="payment-container">
       <EmptyState
         title="Solicitud no disponible"
-        description="Este enlace no existe en este navegador. Las solicitudes de la demostración no se comparten entre dispositivos."
+        description="Esta solicitud no existe o el enlace no es válido. Pide al negocio que te envíe uno nuevo."
       >
         <Button asChild>
           <Link to="/">Volver al catálogo</Link>

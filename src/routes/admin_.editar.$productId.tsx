@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ProductFormPage } from "@/features/catalog/product-form";
+import { RequireAdmin } from "@/features/auth/require-admin";
 
 export const Route = createFileRoute("/admin_/editar/$productId")({
   head: () => ({
@@ -20,5 +21,9 @@ export const Route = createFileRoute("/admin_/editar/$productId")({
 });
 function EditProductPage() {
   const { productId } = Route.useParams();
-  return <ProductFormPage productId={productId} />;
+  return (
+    <RequireAdmin>
+      <ProductFormPage productId={productId} />
+    </RequireAdmin>
+  );
 }

@@ -8,7 +8,7 @@ export function paymentUrl(id: string) {
 export async function copyPaymentLink(id: string) {
   try {
     await navigator.clipboard.writeText(paymentUrl(id));
-    toast.success("Enlace de pago copiado. Solo disponible en este navegador de demostración.");
+    toast.success("Enlace de pago copiado.");
   } catch {
     toast.error("No se pudo copiar el enlace.");
   }
@@ -23,7 +23,7 @@ export function paymentWhatsappUrl(
       : kind === "receipt"
         ? `Adjunté el comprobante de ${formatPrice(request.amount)} para ${request.productName}. Pendiente de confirmación.`
         : `Casa Luma: solicitud de ${formatPrice(request.amount)} para ${request.productName}, a nombre de ${request.customer}.`;
-  return `https://wa.me/?text=${encodeURIComponent(`${text}\n${paymentUrl(request.id)}\nDemostración local: el enlace no está disponible en otros dispositivos.`)}`;
+  return `https://wa.me/?text=${encodeURIComponent(`${text}\n${paymentUrl(request.id)}`)}`;
 }
 
 export async function downloadQr(image: string, id: string) {

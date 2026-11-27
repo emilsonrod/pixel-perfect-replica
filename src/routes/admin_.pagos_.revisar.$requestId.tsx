@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ReviewPaymentPage } from "@/features/payments/review-payment-page";
+import { RequireAdmin } from "@/features/auth/require-admin";
 
 export const Route = createFileRoute("/admin_/pagos_/revisar/$requestId")({
   head: () => ({
@@ -20,5 +21,9 @@ export const Route = createFileRoute("/admin_/pagos_/revisar/$requestId")({
 });
 function ReviewRequestPage() {
   const { requestId } = Route.useParams();
-  return <ReviewPaymentPage key={requestId} requestId={requestId} />;
+  return (
+    <RequireAdmin>
+      <ReviewPaymentPage key={requestId} requestId={requestId} />
+    </RequireAdmin>
+  );
 }

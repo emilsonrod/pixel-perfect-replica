@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ProductFormPage } from "@/features/catalog/product-form";
+import { RequireAdmin } from "@/features/auth/require-admin";
 
 export const Route = createFileRoute("/admin_/nuevo")({
   head: () => ({
@@ -19,5 +20,9 @@ export const Route = createFileRoute("/admin_/nuevo")({
   component: NewProductPage,
 });
 function NewProductPage() {
-  return <ProductFormPage />;
+  return (
+    <RequireAdmin>
+      <ProductFormPage />
+    </RequireAdmin>
+  );
 }

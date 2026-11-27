@@ -6,14 +6,19 @@ import { IconButton } from "@/components/catalog/icon-button";
 import { EmptyState } from "@/components/catalog/empty-state";
 import { SiteFooter } from "@/components/catalog/site-shell";
 import { useProducts } from "./product-context";
-import { formatPrice } from "./model";
+import { formatPrice, matchesProductPath, productPath } from "./model";
 import { shareProduct, whatsappUrl } from "./share";
 import { usePayments } from "@/features/payments/payment-context";
+import { useAuth } from "@/features/auth/auth-context";
 
 export function ProductDetailPage({ productId }: { productId: string }) {
   const { products, ready } = useProducts();
   const { config } = usePayments();
-  const product = products.find((item) => item.id === productId && item.published);
+  const { isMember } = useAuth();
+  const product = products.find((item) => matchesProductPath(item, productId) && item.published);
+  // Only business members can read the QR settings. A customer cannot know in advance whether a
+  // QR exists, so the payment link is offered and the server answers if none is configured.
+  const qrKnownMissing = isMember && !config;
   const [photo, setPhoto] = useState(0);
   if (!ready)
     return (
@@ -92,9 +97,9 @@ export function ProductDetailPage({ productId }: { productId: string }) {
           </div>
           {product.price > 0 && (
             <div className="detail-payment-action">
-              {config ? (
+              {!qrKnownMissing ? (
                 <Button asChild className="w-full">
-                  <Link to="/producto/$productId/pagar" params={{ productId: product.id }}>
+                  <Link to="/producto/$productId/pagar" params={{ productId: productPath(product) }}>
                     <QrCode strokeWidth={1.5} />
                     Pagar con QR
                   </Link>

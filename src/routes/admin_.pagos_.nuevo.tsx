@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PaymentRequestForm } from "@/features/payments/payment-request-form";
+import { RequireAdmin } from "@/features/auth/require-admin";
 
 export const Route = createFileRoute("/admin_/pagos_/nuevo")({
   head: () => ({
@@ -19,5 +20,9 @@ export const Route = createFileRoute("/admin_/pagos_/nuevo")({
   component: NewRequestPage,
 });
 function NewRequestPage() {
-  return <PaymentRequestForm />;
+  return (
+    <RequireAdmin>
+      <PaymentRequestForm />
+    </RequireAdmin>
+  );
 }

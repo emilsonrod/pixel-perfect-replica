@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as AdminNuevoRouteImport } from './routes/admin_.nuevo'
 import { Route as AdminPagosRouteImport } from './routes/admin_.pagos'
 import { Route as PagoRequestIdRouteImport } from './routes/pago.$requestId'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin_/login',
+  path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminNuevoRoute = AdminNuevoRouteImport.update({
@@ -81,6 +87,7 @@ const AdminPagosRevisarRequestIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/nuevo': typeof AdminNuevoRoute
   '/admin/pagos': typeof AdminPagosRoute
   '/pago/$requestId': typeof PagoRequestIdRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/nuevo': typeof AdminNuevoRoute
   '/admin/pagos': typeof AdminPagosRoute
   '/pago/$requestId': typeof PagoRequestIdRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin_/login': typeof AdminLoginRoute
   '/admin_/nuevo': typeof AdminNuevoRoute
   '/admin_/pagos': typeof AdminPagosRoute
   '/pago/$requestId': typeof PagoRequestIdRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/admin/login'
     | '/admin/nuevo'
     | '/admin/pagos'
     | '/pago/$requestId'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/admin/login'
     | '/admin/nuevo'
     | '/admin/pagos'
     | '/pago/$requestId'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/admin_/login'
     | '/admin_/nuevo'
     | '/admin_/pagos'
     | '/pago/$requestId'
@@ -163,6 +175,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   AdminNuevoRoute: typeof AdminNuevoRoute
   AdminPagosRoute: typeof AdminPagosRoute
   PagoRequestIdRoute: typeof PagoRequestIdRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin_/login': {
+      id: '/admin_/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin_/nuevo': {
@@ -259,6 +279,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AdminLoginRoute: AdminLoginRoute,
   AdminNuevoRoute: AdminNuevoRoute,
   AdminPagosRoute: AdminPagosRoute,
   PagoRequestIdRoute: PagoRequestIdRoute,

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AdminPage } from "@/features/catalog/admin-page";
+import { RequireAdmin } from "@/features/auth/require-admin";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -16,5 +17,9 @@ export const Route = createFileRoute("/admin")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: AdminPage,
+  component: () => (
+    <RequireAdmin>
+      <AdminPage />
+    </RequireAdmin>
+  ),
 });

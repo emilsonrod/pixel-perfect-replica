@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Share2 } from "lucide-react";
-import { formatPrice, type Product } from "@/features/catalog/model";
+import { formatPrice, productPath, type Product } from "@/features/catalog/model";
 import { shareProduct } from "@/features/catalog/share";
 import { IconButton } from "./icon-button";
 
@@ -9,7 +9,7 @@ export function ProductCard({ product }: { product: Product }) {
     <article className="product-card">
       <Link
         to="/producto/$productId"
-        params={{ productId: product.id }}
+        params={{ productId: productPath(product) }}
         className="product-image-link"
         aria-label={`Ver ${product.name}`}
       >
@@ -24,7 +24,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="product-card-content">
         <p className="product-category">{product.category}</p>
         <h2 className="product-name">
-          <Link to="/producto/$productId" params={{ productId: product.id }}>
+          <Link to="/producto/$productId" params={{ productId: productPath(product) }}>
             {product.name}
           </Link>
         </h2>
@@ -33,7 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="product-card-bottom">
           <Link
             to="/producto/$productId"
-            params={{ productId: product.id }}
+            params={{ productId: productPath(product) }}
             className="product-detail-link"
           >
             Ver detalles <ArrowUpRight className="h-3 w-3 shrink-0" />

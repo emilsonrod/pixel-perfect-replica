@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   filterProducts,
   formatPrice,
+  imageSchema,
+  matchesProductPath,
   productInputSchema,
-  readStoredProducts,
+  productPath,
   type Product,
 } from "@/features/catalog/model";
 
@@ -54,16 +56,35 @@ describe("Product rules", () => {
       ).map((item) => item.id),
     ).toEqual(["vase"]);
   });
-  it("preserves an intentionally emptied local catalog", () => {
-    expect(readStoredProducts("[]", [sample])).toEqual([]);
+  it("accepts only known image sources", () => {
+    const uuid = "31f6d100-e440-43ee-8f9a-48e645a73246";
+    const host = "https://abc.supabase.co/storage/v1/object";
+    for (const ok of [
+      "/__l5e/assets-v1/example/mug.webp",
+      "data:image/webp;base64,aGVsbG8=",
+      `${host}/public/product-images/${uuid}/foto.webp`,
+      `${host}/sign/payment-receipts/${uuid}/recibo.png?token=abc.def-ghi_jkl`,
+    ])
+      expect(imageSchema.safeParse(ok).success).toBe(true);
+    for (const bad of [
+      "javascript:alert(1)",
+      "data:text/html;base64,PHNjcmlwdD4=",
+      `http://abc.supabase.co/storage/v1/object/public/product-images/${uuid}/foto.webp`,
+      `${host}/public/other-bucket/${uuid}/foto.webp`,
+      `${host}/public/product-images/${uuid}/foto.svg`,
+      `https://evil.example/path?u=${host}/public/product-images/${uuid}/foto.webp`,
+    ])
+      expect(imageSchema.safeParse(bad).success).toBe(false);
   });
-  it("rejects corrupted or invalid storage instead of accepting negative prices", () => {
-    expect(readStoredProducts("broken json", [sample])).toEqual([sample]);
-    expect(readStoredProducts(JSON.stringify([{ ...sample, price: -5 }]), [sample])).toEqual([
-      sample,
-    ]);
+  it("uses the slug in public URLs and still resolves by id", () => {
+    const withSlug = { ...sample, id: "uuid-1", slug: "taza-de-ceramica" };
+    expect(productPath(withSlug)).toBe("taza-de-ceramica");
+    expect(productPath({ id: "uuid-2", slug: null })).toBe("uuid-2");
+    expect(matchesProductPath(withSlug, "taza-de-ceramica")).toBe(true);
+    expect(matchesProductPath(withSlug, "uuid-1")).toBe(true);
+    expect(matchesProductPath(withSlug, "otra")).toBe(false);
   });
-  it("displays the reference mug price in reais", () => {
-    expect(formatPrice(49).replace(/\s/g, " ")).toBe("R$ 49,00");
+  it("displays the reference mug price in bolivianos", () => {
+    expect(formatPrice(49).replace(/\s/g, " ")).toBe("Bs 49,00");
   });
 });

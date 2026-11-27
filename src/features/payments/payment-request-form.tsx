@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useProducts } from "@/features/catalog/product-context";
-import { formatPrice } from "@/features/catalog/model";
+import { formatPrice, matchesProductPath } from "@/features/catalog/model";
 import { usePayments } from "./payment-context";
 import { requestInputSchema } from "./model";
 import { LocalPaymentNotice, PaymentHeading, PaymentUnavailable } from "./payment-ui";
@@ -22,16 +22,18 @@ export function PaymentRequestForm({ productId }: { productId?: string }) {
   const navigate = useNavigate();
   const customerFlow = productId !== undefined;
   const options = customerFlow
-    ? products.filter((item) => item.published && item.id === productId)
+    ? products.filter((item) => item.published && matchesProductPath(item, productId))
     : products;
-  const [selected, setSelected] = useState(productId ?? "");
+  const [selectedId, setSelected] = useState("");
   const [customer, setCustomer] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const product = options.find((item) => item.id === selected);
+  // In the customer flow the product comes from the URL (slug or id); the admin picks one.
+  const product = customerFlow ? options[0] : options.find((item) => item.id === selectedId);
+  const selected = product?.id ?? "";
   if (!ready || !productsReady) return <PaymentUnavailable loading />;
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (submitting) return;
     if (!product) {
@@ -51,7 +53,7 @@ export function PaymentRequestForm({ productId }: { productId?: string }) {
       return;
     }
     setSubmitting(true);
-    const id = createRequest(parsed.data, product, customerFlow ? "customer" : "admin");
+    const id = await createRequest(parsed.data, product);
     if (id) {
       navigate(
         customerFlow
@@ -76,19 +78,13 @@ export function PaymentRequestForm({ productId }: { productId?: string }) {
             : "Solicitud para una pieza de tu colección."}
         </p>
       </div>
-      {!config ? (
+      {!config && !customerFlow ? (
         <div className="payment-unconfigured">
           <QrCode size={42} strokeWidth={1} />
           <h2>El QR de pago no está configurado</h2>
-          {customerFlow ? (
-            <Button asChild variant="outline">
-              <Link to="/">Volver al catálogo</Link>
-            </Button>
-          ) : (
-            <Button asChild>
-              <Link to="/admin/pagos/qr">Configurar QR</Link>
-            </Button>
-          )}
+          <Button asChild>
+            <Link to="/admin/pagos/qr">Configurar QR</Link>
+          </Button>
         </div>
       ) : customerFlow && !product ? (
         <p role="alert" className="form-error">
@@ -146,7 +142,7 @@ export function PaymentRequestForm({ productId }: { productId?: string }) {
           {!customerFlow && (
             <div>
               <label className="field-label" htmlFor="payment-request-amount">
-                Importe a solicitar (R$)
+                Importe a solicitar (Bs)
               </label>
               <Input
                 id="payment-request-amount"
@@ -159,14 +155,16 @@ export function PaymentRequestForm({ productId }: { productId?: string }) {
               />
             </div>
           )}
-          <div className="payment-method-row">
-            <img src={config.image} alt="QR del negocio" width={38} height={38} />
-            <div>
-              <strong>{config.recipient}</strong>
-              <p>QR de pago del negocio</p>
+          {config && (
+            <div className="payment-method-row">
+              <img src={config.image} alt="QR del negocio" width={38} height={38} />
+              <div>
+                <strong>{config.recipient}</strong>
+                <p>QR de pago del negocio</p>
+              </div>
+              <QrCode size={18} strokeWidth={1.5} />
             </div>
-            <QrCode size={18} strokeWidth={1.5} />
-          </div>
+          )}
           <div className="payment-warning">
             <strong>El importe se ingresa en la aplicación de tu banco.</strong>
             <p>
